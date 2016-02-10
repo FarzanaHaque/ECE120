@@ -1,25 +1,34 @@
 
 
 1. -22 * 33 
-a) int: 
-b) unsigned int: 
-c) float: 
-d) double: 
+a) int: -726
+b) unsigned int: 4294966570
+c) float: -726.00000
+d) double: -726.000000
 
 2. 12 / 3  
-a) int:
-b) unsigned int:
-c) float: 
-d) double: 
+a) int:4
+b) unsigned int:4
+c) float:  4.000000
+d) double: 4.000000
+
 
 3. 10 / 3  
-a) int:
-b) unsigned int:
-c) float: 
-d) double: 
+a) int:3
+b) unsigned int:3
+c) float: 3.333333
+d) double: 3.333333
 
-4. 12 % 3 = 
 
+4. 12 % 3 = 0
+ged
 5. -11 % 3 = 
+num_comps.c: In function ‘main’:
+num_comps.c:5: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘-’ token
+cc1: warnings being treated as errors
+num_comps.c:5: error: statement with no effect
+num_comps.c:9: error: ‘val1’ undeclared (first use in this function)
+num_comps.c:9: error: (Each undeclared identifier is reported only once
+num_comps.c:9: error: for each function it appears in.)
 
 
