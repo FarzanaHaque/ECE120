@@ -1,5 +1,0 @@
-The topology your circuit is topology number 2 
-
-Your gate1 is NAND.
-Your gate2 is NOR.
-Your gate3 is AND.
