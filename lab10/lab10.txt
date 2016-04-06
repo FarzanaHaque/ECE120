@@ -1,9 +1,9 @@
 QUESTION 1.  Read through the program lab10.bin. What do you expect the program to do? More specifically, which register will the program modify when it is run, and what will it contain when the program finishes? (You can probably figure this out merely by reading the comments provided in lab10.bin.)
 
-ANSWER: 
+ANSWER: The program will modify register 2 such that it'll contain the number 12 when it finishes.
 
 
 QUESTION 2.  Explain in a few sentences why the ability to step through a program (run one instruction at a time) is a very useful tool for debugging a program. Debugging is the process of finding and correcting bugs (or errors) in a program. Hint: Finding a bug is often much more difficult than correcting it.
 
 ANSWER: 
-
+Stepping through a program allows you to see the effect of every instruction one at a time versus just looking at the end result. If the output is different from the desired output, you know it's wrong but by going step by step you can see where you went wrong. And if you see you made a mistake in an instruction or if the effect of an instruction wasn't what you planned for it to be, you can now fix it and rerun your program to see if that was the error.
