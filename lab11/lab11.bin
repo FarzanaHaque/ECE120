@@ -5,4 +5,28 @@
 0011 0001 0000 0000 ; x3100 - starting address of the program
 
 ; The program description and code starts here
+;The purpose of the program is to add up all the positive numbers in a set (always 10 numbers in a set)
+;Set up R4 to be the counter, which we initalize to 10 because there are 10 numbers we will be analyzing
+;R3 to be the pointer (aka denotes the location of the numbers in memory)
+;R5 is going to be the final sum o we initialize it to zero
+;R6 is the number being analyzed aka mem[R3+0]
+;we set up a while loop so that when the counter is positive it'll loop and check to see
+;if the number being analyzed is positive and if so add it to the final sum
+;when the counter reaches zero the program halts
+
+1110 011 000110001; R3<-PC +31         intializes R3 to x3132
+0101 100 100 1 00000 ;R4 <- 0          clear the current value
+0001 100 100 1 01010 ;R4<- R4 +10      sets R4 to 10 
+0101 101 101 1 00000 ;R5 <- 0          clears the current value
+0001 100 100 1 00000; R4<-R4 +0        resets the condition code to the value of R4
+0000 110 000000111; if nz, PC<-PC+x07  moves to halt if counter isn't positive
+0110 110 011 000000; R6<-M[R3+x00]     loads from memory[pointer] into R6 the number being analyzed
+0001 011 011 1 00001;R3<-R3+SEXT(00001)increments pointer by one
+0001 110 110 1 00000;R6<-R6+SEXT(00000)resets the condition code based on the value of R6
+0000 110 000000001; if nz,PC<-PC+x01   If the number is negative or zero skip adding R6 to the sum 
+0001 101 101 000 110; R5<-R5+R6        Adds the number being analyzed to the final sum (only occurs in number is +) 
+0001 100 100 1 11111; R4<-R4+SEXT(11111) Decrement the counter by 1
+0000 001 111110111; if p,PC<-PC-9      If counter is positive, go back to the beginning of the iterative loop
+1111 0000 0010 0101; halt
+
 
