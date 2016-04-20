@@ -1,23 +1,36 @@
 Question 1: Describe the errors that occur when trying to assemble lab12.asm. Identify the cause of each error.
-
+(Errors from Terminal & Why)
  14: illegal operands for missing opcode
+	It's missing the .ORIG before x3000.
  16: instruction appears before .ORIG
+	There is no.ORIG label which always need to be put in the beginning of the assembly program.
  17: constant outside of allowed range
+	For the line "LD    R2,x3010;" There's a problem because LD can only take a PCOFFSET9 meaning the highest hexadecimal number it can set the PC offset to is x01FF. So x3010 is out of the range for PCOFFSET9. To remedy that I  created a label at x3010 called Neg1 changed the line to "LD R2, Neg1". 	
  19: illegal operands for ADD
+	There is a typo for the line "ADD   R3,,R3,R2;" which has 2 commas in a row where there should be just one. 
  30: constant outside of allowed range
+	For the line "LD    R5,x300F;" There's a problem because LD can only take a PCOFFSET9 meaning the highest hexadecimal number it can set the PC offset to is x01FF. So x300F is out of the range for PCOFFSET9. To remedy that I created the label at x300F called ZERO and changed the line to "LD R5, ZERO". 
  32: label OUTERLOOP has already appeared
+	There is an error with "BRpz  OUTERLOOP           ; Branch to outer loop if outer count", BRpz should be BRzp.
  35: constant outside of allowed range
+	For the line "ST   R1,x3011", there's a problem because ST can only take a PCOFFSET9 meaning the highest hexadecimal number it can set the PC offset to is x01FF. So x3011 is out of the range for PCOFFSET9. To remedy that I created the label at x3011 called RESULT and changed the line to "ST   R1,RESULT ". 
  43: no .END directive found
+	There is no .END label which always need to be put at end of the assembly program.
 
+(Paragraph form- literally same thing but might be easier to read if you want)
 There is .ORIG and no .END label which always need to be put in the beginning and end of the assembly program, respectively.
 There is a typo for the line "ADD   R3,,R3,R2;" which has 2 commas in a row where there should be just one. 
 Also there is an error with "BRpz  OUTERLOOP           ; Branch to outer loop if outer count", BRpz should be BRzp.
 For the line "LD    R5,x300F;" There's a problem because LD can only take a PCOFFSET9 meaning the highest hexadecimal number it can set the PC offset to is x01FF. So x300F is out of the range for PCOFFSET9. To remedy that I created the label at x300F called ZERO and changed the line to "LD R5, ZERO". Similarily for the line "LD    R2,x3010", I created a label at x3010 called Neg1 and changed the code to "LD    R2,Neg1". Similarly I created a label at x3011 called RESULT and changed "ST   R1,x3100" to " ST R1,RESULT".
 
-
-
 Question 2: For each label in the code, write down the corresponding memory location. 
-OUTERLOOP is at x3004. INNERLOOP is at x3005. INPUT is at x300E. ZERO is at x300F. Neg1 is at x3010. RESULT is at x3011.  I created the Neg1, ZERO, and RESULT labels.
+OUTERLOOP is at x3004. 
+INNERLOOP is at x3005. 
+INPUT is at x300E. 
+ZERO is at x300F. 
+Neg1 is at x3010. 
+RESULT is at x3011.  
+I created the Neg1, ZERO, and RESULT labels.
 
 
 Question 3: Between using labels and explicit memory locations/offsets, which one makes the most sense, and why?
