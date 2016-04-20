@@ -11,8 +11,10 @@
 ; R4 contains counter for inner loop
 ; R5 contains current sum
 
-            .ORIG x2FFF
-		AND R0,R0,#0	
+            .ORIG x2FFE ;Added 2 lines of codes at top, 
+;so I changed starting point so registers would be loading at the same addresses 
+		AND R5,R5,#0   ;Clears R5
+		AND R0,R0,#0	;clears R0
             LD    R1,INPUT            ; R1 contains input number
             LD    R2,Neg1            ; R2 contains -1
             ADD   R3,R1,R2            ; R3 contains input number -1
