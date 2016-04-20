@@ -11,8 +11,8 @@
 ; R4 contains counter for inner loop
 ; R5 contains current sum
 
-            .ORIG x3000
-
+            .ORIG x2FFF
+		AND R0,R0,#0	
             LD    R1,INPUT            ; R1 contains input number
             LD    R2,Neg1            ; R2 contains -1
             ADD   R3,R1,R2            ; R3 contains input number -1
