@@ -2,11 +2,18 @@
 ; character, the table uses 16 memory locations, each of which contains
 ; 8 bits (the high 8 bits, for your convenience) marking pixels in the
 ; line for that character.
+
 ;R2 holds the value of the current line
 ;R3 holds the value of the line counter (initialized at 16)
 ;R4 is the bit counters (initialized at 8)
 ;R5 initially is the PC offset for FONT_DATA 
 ;R6 is the specific bit being analyzed
+
+;The purpose of the code is to print out the same of M[x5002]
+;using only the characters of M[x5000] and M[x5001]
+;the data to create these patterns are given to us from DATA_FONT
+;we just need to implement it
+
 ;the logic is basically
 ;for each line
 ;	for each bit
@@ -14,7 +21,10 @@
 ;			print m[x5000]
 ;		if bit==1
 ;			print m[x5001]
-;continue line & bit loops w/ BRp
+;continue line & bit loops when their respective counters are positive
+
+;Paragraph explaination
+
 ;first you must clear everything
 ;the first line  is set to M[5000] *16 + FONT_DATA
 ;the line counter is set to 16 (when it reaches 0 the program halts)
