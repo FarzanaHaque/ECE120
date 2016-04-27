@@ -7,10 +7,31 @@
 ;R4 is the bit counters (initialized at 8)
 ;R5 initially is the PC offset for FONT_DATA 
 ;R6 is the specific bit being analyzed
-
-
-
-
+;the logic is basically
+;for each line
+;	for each bit
+;		if bit==0
+;			print m[x5000]
+;		if bit==1
+;			print m[x5001]
+;continue line & bit loops w/ BRp
+;first you must clear everything
+;the first line  is set to M[5000] *16 + FONT_DATA
+;the line counter is set to 16 (when it reaches 0 the program halts)
+;for each line (16 lines in total) you go through 8 bits
+;so at the beginning of each row, the bit counter is reset to 8
+;You make R6 M[R2], if it's negative the first bit is 1, postive/zero means 1st bit is 0
+;if it's negative you print out the character for one
+;if it's positive/zero you print out the character for zero
+;then you multiply r6 by 2 so that it's a left shift (so you can analyze the next bit if you choose)
+;Then you decrement the bit counter by 1
+;If the bit counter's positive you stay in the bit loop
+;if it's zero you would print out a new line
+;and increment current line location by one and
+;decrement line counter by 1
+;If the line counter is positive, continue the line loop, if zero or negative (although it's never
+;negative) halt
+;I created 3 labels that filled with x5000, x5001, x5002 respectively
 
 
 .ORIG x3000
@@ -21,39 +42,36 @@ ADD R3,R3, #8; R3=16
 AND R4,R4, #0 ;Clear
 
 LDI R2, FK2 ;loads m[5002] into r2
-;LDR R2, R2,#0; TESTING
 
 ADD R2, R2, R2;R2=2r2initial
 ADD R2, R2, R2;r2=4(r2initial)
 ADD R2, R2, R2;r2=8r2initial 
 ADD R2, R2, R2 ;r2=16(r2initial)
-LEA R5,FONT_DATA ;
-ADD R2, R2, R5; 
-;;;;;;BRz DONE
-NewRow ADD R4, R4, #8 ;initalize bit counter?
-LDR R6, R2, #0
-;ADD R5, R5, #0 unnecessaru
+LEA R5,FONT_DATA ;The location of the first FONT data
+ADD R2, R2, R5; R2=M[5000] *16 + FONT_DATA
+NewRow ADD R4, R4, #8 ;initalize bit counter for new row
+LDR R6, R2, #0; R6<-M[R2]
 BITLOOP ADD R6, R6,#0 ;This is so we can use BR for R6
-BRn One
-LDI R0, ZeroChar
-OUT
-BRnzp SKIP
+BRn One ;go to One Loop
+LDI R0, ZeroChar 
+OUT ;Prints out character for zero
+BRnzp SKIP; skips 2 lines/doesn't output character for ONE
 One LDI R0, OneChar
-OUT
-SKIP ADD R6, R6, R6
+OUT; output character for ONE
+SKIP ADD R6, R6, R6 ;left shift the bit
 ADD R4, R4,#-1
-BRp BITLOOP
+BRp BITLOOP ;if Bit counter
 LD R0, ASCII_NL ; load NewLine ASCII value
 OUT
-ADD R2, R2, #1
-ADD R3, R3, #-1
-BRnp NewRow
-HALT
-ASCII_NL .FILL xA
-ZeroChar .FILL x5000
-OneChar .FILL x5001
+ADD R2, R2, #1;increment line location
+ADD R3, R3, #-1;decrement line counter
+BRnp NewRow ;if line counter is positive continue the line loop
+HALT; If negative/zero line counter end program
+ASCII_NL .FILL xA ;new line character
+ZeroChar .FILL x5000; location of zero character
+OneChar .FILL x5001; location of one character
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-FK2 .FILL x5002
+FK2 .FILL x5002 ;location of pattern
 FONT_DATA .FILL	x0000
 	.FILL	x0000
 	.FILL	x0000
