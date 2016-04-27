@@ -2,9 +2,59 @@
 ; character, the table uses 16 memory locations, each of which contains
 ; 8 bits (the high 8 bits, for your convenience) marking pixels in the
 ; line for that character.
+;R2 holds the value of the current line
+;R3 holds the value of the line counter (initialized at 16)
+;R4 is the bit counters (initialized at 8)
+;R5 initially is the PC offset for FONT_DATA 
+;R6 is the specific bit being analyzed
 
-FONT_DATA
-	.FILL	x0000
+
+
+
+
+
+.ORIG x3000
+AND R2,R2, #0 ;Clear
+AND R3,R3, #0 ;Clear
+ADD R3,R3, #8 ;initalize line counter
+ADD R3,R3, #8; R3=16
+AND R4,R4, #0 ;Clear
+
+LDI R2, FK2 ;loads m[5002] into r2
+;LDR R2, R2,#0; TESTING
+
+ADD R2, R2, R2;R2=2r2initial
+ADD R2, R2, R2;r2=4(r2initial)
+ADD R2, R2, R2;r2=8r2initial 
+ADD R2, R2, R2 ;r2=16(r2initial)
+LEA R5,FONT_DATA ;
+ADD R2, R2, R5; 
+;;;;;;BRz DONE
+NewRow ADD R4, R4, #8 ;initalize bit counter?
+LDR R6, R2, #0
+;ADD R5, R5, #0 unnecessaru
+BITLOOP ADD R6, R6,#0 ;This is so we can use BR for R6
+BRn One
+LDI R0, ZeroChar
+OUT
+BRnzp SKIP
+One LDI R0, OneChar
+OUT
+SKIP ADD R6, R6, R6
+ADD R4, R4,#-1
+BRp BITLOOP
+LD R0, ASCII_NL ; load NewLine ASCII value
+OUT
+ADD R2, R2, #1
+ADD R3, R3, #-1
+BRnp NewRow
+HALT
+ASCII_NL .FILL xA
+ZeroChar .FILL x5000
+OneChar .FILL x5001
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+FK2 .FILL x5002
+FONT_DATA .FILL	x0000
 	.FILL	x0000
 	.FILL	x0000
 	.FILL	x0000
@@ -4100,3 +4150,4 @@ FONT_DATA
 	.FILL	x0000
 	.FILL	x0000
 	.FILL	x0000
+.END
