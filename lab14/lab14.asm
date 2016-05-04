@@ -16,7 +16,6 @@ AND R3,R3, #0 ;Clears R3
 ADD R3,R3, #8 ;Initalizes line count to 16
 ADD R3,R3, #8; R3=16
 AND R4,R4, #0 ;Clears R4
-AND R7,R7, #0
 
 
 ;this is our counter
@@ -48,8 +47,9 @@ ADD R2, R2, R5;r2 is the current location to read
 NOT R3, R3
 ADD R2, R2, R3
 NOT R3, R3; Returns R4 to normal
-ADD R2, R2, #15
-
+ADD R2, R2, #7
+ADD R2, R2, #8
+ADD R2, R2, #2
 
  ADD R4, R4, #8 ;initalizes bit counter USED TO HAVE NEWROW
 LDR R6, R2, #0
