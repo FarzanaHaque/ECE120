@@ -2,97 +2,101 @@
 ; character, the table uses 16 memory locations, each of which contains
 ; 8 bits (the high 8 bits, for your convenience) marking pixels in the
 ; line for that character.
-;R2 is value of the current line
-;R3 is value of the line counter (16)
-;R4 is the bit counter (8)
-;R5 is the PC offset for FONT_DATA
-;R6 is bit analyzed
 
+;Registers
+;R1 tells us the location of the character in the word, aka 0th character, 1st character etcc
+;R2 is value of the current line
+;R3 is value of the line counter (initialized at 16),decremented by one each time we go down a line
+;R4 is the bit counter (initialized at 8) 
+;R5 is the PC offset for FONT_DATA
+;R6 is specific bit analyzed
+
+;This lab is heavily based on the previous lab, but now instead of outputing a single character
+;we can now print out entire strings of characters, while still only using the characters of
+;M[x5000] and M[x50001] 
+
+
+;Paragraph Explanation
+;First you must clear registers 1-4,(5&6 are being loaded so you don't need to clear and 1&7 aren't being used)
+;then we set R2<-M[character in string]*16 +FONT_DATA
+;we do this by using R1 to figure out what's the current character's location in the string starting from 0 on the left
+;so R2<-M[x5002+R1]*16+FONT_DATA
+;The line counter (R3) is initialized to 16 and is decremented everytime we go down a row, when r3=0 the program halts
+;then we use the line counter to figure out what line we're on, if line counter is 16, we're on the zeroth line
+;if R3 is 15, we're on the '1st' line and so on
+;so we're always on the (16-line counter)th line and from 2's complements we know -A=NOT(A)+1
+;so (16-R3)=(16+NOT(R3)+1)=(17+NOT(R3))
+;so we not R3, add it to R2, not R3 again so it's back to it's original value
+;then we add #17 to R2, then we initalize the bit counter to 8, and we load R6<-M[R2]
+;if it's negative the first bit is 1, postive/zero means 1st bit is 0
+;if it's negative you print out the character for one
+;if it's positive/zero you print out the character for zero
+;then you multiply r6 by 2 so that it's a left shift (so you can analyze the next bit if you choose)
+;then decrement the bit by one and stay in the bitloop until the bit counter is zero, 
+;then you move on to the next character by incrementing R1
+;then you go back to setting R2<-M[x5002+R1]*16+FONT_DATA+(17+NOT(R3)) 
+;Load R6 with M[R2] and if that's zero R6 contains the null string and you go to the nullcharacter label
+;and clear R1, print out a newline and decrement the line counter
+;if it's zero you halt, otherwise you'll start working on the next line starting on the zeroth character
+;(which is why you cleared R1)
+;I created three labels filled with x5000,x5001, and x5002 respectively so I wouldn't have to track
+;PC OFFSET while writing the code
 
 .ORIG x3000
-AND R1,R1, #0
+AND R1,R1, #0 ;Clears R1
 AND R2,R2, #0 ;Clears R2
 AND R3,R3, #0 ;Clears R3
-ADD R3,R3, #8 ;Initalizes line count to 16
+ADD R3,R3, #8 ;R3=8
 ADD R3,R3, #8; R3=16
 AND R4,R4, #0 ;Clears R4
 
 
-;this is our counter
-;notnull LD R2, FK2
-;ADD R2, R2, R1
-;LDR R2, R2, #0
-;BRz endcounter
-;ADD R1, R1, #1
-;BRnzp notnull
+NEWCHAR LD R2, FK2 ;R2<-x5002
+ADD R2, R2, R1 ;offsets R2 based on R1,eg if it's the zeroth character(R1=0) R2 remains x5002 ,if it's the 
+;1st its becomes x5003
+LDR R2, R2, #0 ;R2<-M[R2], loadss the current character
+BRz nullcharacter ;if R2=x00 then it's the null string
 
-
-
-
-;endcounter 
-;LDI R2, FK2 ;loads memory in x5002 into R2
-NEWCHAR LD R2, FK2
-ADD R2, R2, R1
-;;;;ADD R2, R2, R7
-LDR R2, R2, #0
-BRz nullcharacter
-
-ADD R2, R2, R2;
-ADD R2, R2, R2;
-ADD R2, R2, R2;
-ADD R2, R2, R2 ; r2 is multiplied by 16
-LEA R5,FONT_DATA ;font data is loaded
+ADD R2, R2, R2;R2=2R2
+ADD R2, R2, R2;R2=4R2
+ADD R2, R2, R2;R2=8R2
+ADD R2, R2, R2 ;R2=16R2
+LEA R5,FONT_DATA ;the location of the first font data is loaded
 ADD R2, R2, R5;r2 is the current location to read
-; yes but it won't work ADD R2, R2, R7; IS THIS THE THING WE NEED?
-NOT R3, R3
-ADD R2, R2, R3
-NOT R3, R3; Returns R4 to normal
-ADD R2, R2, #7
-ADD R2, R2, #8
-ADD R2, R2, #2
+NOT R3, R3 ;R3=-R3
+ADD R2, R2, R3;R2=R2-R3
+NOT R3, R3; Returns R3 to original value
+ADD R2, R2, #7 ;R2=R2-R3+7
+ADD R2, R2, #8 ;R2=R2-R3+15
+ADD R2, R2, #2 ;R2=R2-R3+17 (tells us the location of the line of font_data being used)
 
- ADD R4, R4, #8 ;initalizes bit counter USED TO HAVE NEWROW
-LDR R6, R2, #0
+ADD R4, R4, #8 ;initalizes bit counter to 8 (was previously zero)
+LDR R6, R2, #0 ;R6<-M[R2]
 
 BITLOOP ADD R6, R6,#0 ;This is so we can use BR for R6
-BRn One
-LDI R0, ZeroChar
+BRn One ;go to One loop
+LDI R0, ZeroChar ;Puts character for zero in R0
 OUT
-BRnzp SKIP
-One LDI R0, OneChar
-OUT
-SKIP ADD R6, R6, R6
-ADD R4, R4,#-1
-BRp BITLOOP
-ADD R1, R1, #1;
-BRnzp NEWCHAR
-;NEXT CHARACTER
+BRnzp SKIP ;skips 2 lines/doesn't ouptut character for ONE
+One LDI R0, OneChar 
+OUT ;Prints out character for zero
+SKIP ADD R6, R6, R6 ;left shift
+ADD R4, R4,#-1 ;decrements bit counter
+BRp BITLOOP ;it loops as long as bit is positive
+ADD R1, R1, #1; ;moves on to next character in string
+BRnzp NEWCHAR 
 
-nullcharacter ;LDI R0, ZeroChar
-;OUT
-;LDI R0, ZeroChar
-;OUT
-;LDI R0, ZeroChar
-;OUT
-;LDI R0, ZeroChar
-;OUT
-;LDI R0, ZeroChar
-;OUT
-;LDI R0, ZeroChar
-;OUT
-;LDI R0, ZeroChar
-;OUT
-;LDI R0, ZeroChar
-;OUT
+
+nullcharacter 
 AND R1, R1, #0; Clear R1 to zero whenever new line
 
-LD R0, ASCII_NL ; load NewLine ASCII values
-OUT
+LD R0, ASCII_NL ; load NewLine ASCII value
+OUT ;Prints NewLine
 
-ADD R3, R3, #-1
-BRnp NEWCHAR
-HALT
-;LABELS
+ADD R3, R3, #-1 ;decrement line counter
+BRnp NEWCHAR 
+HALT ;only happens in line counter reaches zero aka done with printing
+
 ASCII_NL .FILL xA
 ZeroChar .FILL x5000
 OneChar .FILL x5001
